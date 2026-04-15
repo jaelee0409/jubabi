@@ -1,0 +1,1 @@
+ALTER TABLE "user_alerts" ADD COLUMN "enabled" boolean DEFAULT true NOT NULL;

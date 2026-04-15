@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "nodemon --exec \"node --env-file=.env -r ts-node/register src/server.ts\"",
+    "build": "rimraf dist && tsc",
+    "start:dev": "pm2 start ecosystem.config.js --env development",
+    "start:preview": "pm2 start ecosystem.config.js --env preview",
+    "start": "pm2 start ecosystem.config.js --env production",
+    "stop": "pm2 stop backend",
+    "logs": "pm2 logs backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
+    "@aws-sdk/client-ssm": "^3.879.0",
+    "@neondatabase/serverless": "^1.0.1",
+    "adm-zip": "^0.5.16",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.44.4",
+    "expo-server-sdk": "^3.15.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^4.2.1",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.1.0",
+    "@types/xml2js": "^0.4.14",
+    "drizzle-kit": "^0.31.4",
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

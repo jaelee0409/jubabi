@@ -1,0 +1,1 @@
+-- ALTER TABLE "user_alerts" ALTER COLUMN "id" SET DATA TYPE uuid;

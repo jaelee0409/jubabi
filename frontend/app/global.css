@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 🌞 Light theme */
+    --color-primary: hsl(0, 74%, 42%); /* #B91C1C */
+    --color-border: hsl(220, 13%, 91%); /* #E5E7EB */
+
+    --color-heading: hsl(0, 0%, 10%); /* #1A1A1A */
+    --color-body: hsl(0, 0%, 25%); /* #404040 */
+    --color-muted: hsl(0, 0%, 45%); /* #737373 */
+
+    --color-bg: hsl(0, 0%, 98%); /* #FAFAFA */
+    --color-surface: hsl(0, 0%, 100%); /* #FFFFFF */
+
+    --color-disabled: hsl(0, 0%, 90%); /* #E5E5E5 */
+    --color-disabled-text: hsl(0, 0%, 55%); /* #8C8C8C */
+  }
+
+  .dark {
+    /* 🌙 Dark theme */
+    --color-primary: hsl(0, 72%, 60%); /* #DC2626 (slightly brighter red) */
+    --color-border: hsl(220, 14%, 25%); /* #374151 */
+
+    --color-heading: hsl(0, 0%, 95%); /* #F2F2F2 */
+    --color-body: hsl(0, 0%, 80%); /* #CCCCCC */
+    --color-muted: hsl(0, 0%, 60%); /* #999999 */
+
+    --color-bg: hsl(0, 0%, 7%); /* #121212 */
+    --color-surface: hsl(0, 0%, 12%); /* #1F1F1F */
+
+    --color-disabled: hsl(0, 0%, 20%); /* #333333 */
+    --color-disabled-text: hsl(0, 0%, 50%); /* #808080 */
+  }
+}

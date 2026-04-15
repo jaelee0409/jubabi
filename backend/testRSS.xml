@@ -1,0 +1,33 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+<script src="chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame_ant/frame_ant.js"/>
+<channel>
+<title>DART : 최근공시</title>
+<link>http://dart.fss.or.kr</link>
+<description>DART 전자공시 시스템 - 최근 공시 정보를 제공합니다.</description>
+<language>ko</language>
+<copyright>DART</copyright>
+<pubDate>Mon, 08 Sep 2025 12:47:59 GMT</pubDate>
+<dc:creator>DART</dc:creator>
+<dc:date>2025-09-08T12:47:59Z</dc:date>
+<dc:language>ko</dc:language>
+<dc:rights>DART</dc:rights>
+<item>
+<title>(코스닥)에코프로비엠 - 경영권변경등에관한계약체결 테스트</title>
+<link>http://dart.fss.or.kr/api/link.jsp?rcpNo=20250908900560</link>
+<category>코스닥</category>
+<pubDate>Mon, 08 Sep 2025 10:21:00 GMT</pubDate>
+<guid>http://dart.fss.or.kr/api/link.jsp?rcpNo=20250908900560</guid>
+<dc:creator>압타머사이언스</dc:creator>
+<dc:date>2025-09-08T10:21:00Z</dc:date>
+</item>
+<item>
+<title>(유가)셀트리온 - 불성실공시법인지정예고 테스트</title>
+<link>http://dart.fss.or.kr/api/link.jsp?rcpNo=20250908800556</link>
+<category>유가</category>
+<pubDate>Mon, 08 Sep 2025 09:43:00 GMT</pubDate>
+<guid>http://dart.fss.or.kr/api/link.jsp?rcpNo=20250908800556</guid>
+<dc:creator>유가증권시장본부</dc:creator>
+<dc:date>2025-09-08T09:43:00Z</dc:date>
+</item>
+</channel>
+</rss>
