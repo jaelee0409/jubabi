@@ -1,9 +1,9 @@
-import { loadProdEnv } from "./config/loadConfig";
+import app from "./app";
+import { companiesCache } from "./cache/companiesCache";
 import { initDb } from "./config/db";
 import { ENV } from "./config/env";
+import { loadProdEnv } from "./config/loadConfig";
 import { startRssPoller } from "./jobs/rssPoller";
-import { companiesCache } from "./cache/companiesCache";
-import app from "./app";
 import "./jobs/scheduler";
 
 async function bootstrap() {
@@ -11,7 +11,7 @@ async function bootstrap() {
   initDb();
   await companiesCache.load();
 
-  const PORT_NUMBER = Number(ENV.PORT);
+  const PORT_NUMBER = Number(ENV.PORT) || 3000;
   app.listen(PORT_NUMBER, "0.0.0.0", () => {
     console.log(`Server is running on port ${PORT_NUMBER}`);
   });
