@@ -1,9 +1,10 @@
 import { parseStringPromise } from "xml2js";
-import { disclosures, userNotifications } from "../db/schema";
+import { userNotifications } from "../db/schema";
 import { parseDisclosureTitle } from "../utils/parseDisclosureTitle";
 import { sendPushNotification } from "../scripts/notifications";
 import { companiesCache } from "../cache/companiesCache";
 import { getDb } from "../config/db";
+import { claimDisclosure } from "./claimDisclosure";
 import { findRecipients } from "./findRecipients";
 
 // Test용
@@ -69,26 +70,33 @@ export function startRssPoller() {
 
         const ctx = { rcpNo, company: parsed.companyName };
 
-        // 1. Add the disclosure to the DB
+        // 1. Add the disclosure to the DB.
+        // 이번 호출이 처음 저장했을 때만 알림 단계로 간다. 재시작으로 seenDisclosures가
+        // 비었거나 폴링이 겹쳐도 같은 공시로 푸시가 두 번 나가지 않는다.
+        let isNew: boolean;
         try {
-          await db
-            .insert(disclosures)
-            .values({
-              receiptNumber: rcpNo,
-              title: parsed.disclosureTitle,
-              correctionType: parsed.correctionType,
-              disclosedAt: new Date(disclosure.pubDate),
-              market: parsed.market,
-              companyName: parsed.companyName,
-              companyCorpCode: company.corpCode,
-              category: parsed.category,
-              type: parsed.type,
-            })
-            .onConflictDoNothing();
-          console.log("Added the new disclosure to the DB", ctx);
+          isNew = await claimDisclosure(db, {
+            receiptNumber: rcpNo,
+            title: parsed.disclosureTitle,
+            correctionType: parsed.correctionType,
+            disclosedAt: new Date(disclosure.pubDate),
+            market: parsed.market,
+            companyName: parsed.companyName,
+            companyCorpCode: company.corpCode,
+            category: parsed.category,
+            type: parsed.type,
+          });
         } catch (dbErr) {
+          // seen 표시를 하지 않으므로 다음 폴링에서 다시 시도한다
           console.error("DB insert new disclosure error", { ...ctx, error: dbErr });
+          continue;
         }
+
+        if (!isNew) {
+          seenDisclosures.set(rcpNo, Date.now());
+          continue;
+        }
+        console.log("Added the new disclosure to the DB", ctx);
 
         // 2. Find matching users
         let recipientIds: string[] = [];
@@ -104,22 +112,22 @@ export function startRssPoller() {
         try {
           await Promise.all(
             recipientIds.map((userId) =>
-                sendPushNotification(userId, {
-                  title: `새 공시: ${parsed.companyName}`,
-                  body: parsed.type,
-                  data: { receiptNumber: rcpNo },
-                })
-              )
+              sendPushNotification(userId, {
+                title: `새 공시: ${parsed.companyName}`,
+                body: parsed.type,
+                data: { receiptNumber: rcpNo },
+              })
+            )
           );
           console.log("Sent the new disclosure notification", { ...ctx, type: parsed.type });
 
           // 4. Add the notifications to the DB
           const notificationValues = recipientIds.map((userId) => ({
-              userId,
-              disclosureReceiptNumber: rcpNo,
-              createdAt: new Date(disclosure.pubDate),
-              read: false,
-            }));
+            userId,
+            disclosureReceiptNumber: rcpNo,
+            createdAt: new Date(disclosure.pubDate),
+            read: false,
+          }));
 
           if (notificationValues.length > 0) {
             await db.insert(userNotifications).values(notificationValues);

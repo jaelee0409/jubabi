@@ -1,14 +1,12 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { PGlite } from "@electric-sql/pglite";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/pglite";
-import { generateDrizzleJson, generateMigration } from "drizzle-kit/api";
 import * as schema from "../../db/schema";
 import { findRecipients } from "../findRecipients";
+import { createTestDb } from "./testDb";
 
-const client = new PGlite();
-const db = drizzle(client, { schema });
+let client: Awaited<ReturnType<typeof createTestDb>>["client"];
+let db: Awaited<ReturnType<typeof createTestDb>>["db"];
 
 const SAMSUNG = "00126380";
 const OTHER = "00164779";
@@ -19,13 +17,7 @@ let otherFavUser: string; // 다른 회사만 관심종목에 등록
 let bystander: string; // 아무것도 등록 안 함
 
 before(async () => {
-  // 마이그레이션 이력은 빈 DB에서 재현되지 않으므로(0000이 users·companies를
-  // 만들지 않음) 코드가 실제로 쓰는 schema.ts로부터 테이블을 만든다.
-  const statements = await generateMigration(
-    generateDrizzleJson({}),
-    generateDrizzleJson(schema)
-  );
-  for (const statement of statements) await client.exec(statement);
+  ({ client, db } = await createTestDb());
 
   await db.insert(schema.companies).values([
     { corpCode: SAMSUNG, name: "삼성전자", stockCode: "005930" },
