@@ -100,3 +100,16 @@ test("비활성화된 키워드 알림은 무시한다", async () => {
     .set({ enabled: true })
     .where(eq(schema.userAlerts.userId, keywordUser));
 });
+
+test("키워드의 %, _ 는 와일드카드가 아니라 글자로 취급한다", async () => {
+  const [wildcardUser] = await db
+    .insert(schema.users)
+    .values({ kakaoId: "wildcard" })
+    .returning({ id: schema.users.id });
+  await db
+    .insert(schema.userAlerts)
+    .values({ userId: wildcardUser.id, keyword: "%", enabled: true });
+
+  const ids = await findRecipients(db, OTHER, "유상증자결정");
+  assert.ok(!ids.includes(wildcardUser.id));
+});
