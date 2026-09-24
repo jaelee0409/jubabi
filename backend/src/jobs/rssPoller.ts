@@ -1,16 +1,10 @@
 import { parseStringPromise } from "xml2js";
-import {
-  disclosures,
-  userNotifications,
-  userAlerts,
-  users,
-  userStockFavorites,
-} from "../db/schema";
+import { disclosures, userNotifications } from "../db/schema";
 import { parseDisclosureTitle } from "../utils/parseDisclosureTitle";
-import { eq, like, or, and } from "drizzle-orm";
 import { sendPushNotification } from "../scripts/notifications";
 import { companiesCache } from "../cache/companiesCache";
 import { getDb } from "../config/db";
+import { findRecipients } from "./findRecipients";
 
 // Test용
 // import { ENV } from "../config/env";
@@ -97,32 +91,9 @@ export function startRssPoller() {
         }
 
         // 2. Find matching users
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let interestedUsers: any[] = [];
+        let recipientIds: string[] = [];
         try {
-          interestedUsers = await db
-            .select()
-            .from(users)
-            .leftJoin(
-              userStockFavorites,
-              eq(userStockFavorites.companyCorpCode, company.corpCode)
-            )
-            .leftJoin(
-              userAlerts,
-              and(
-              like(userAlerts.keyword, `%${parsed.disclosureTitle}%`),
-              eq(userAlerts.enabled, true)
-            )
-            )
-            .where(
-              or(
-                eq(userStockFavorites.companyCorpCode, company.corpCode),
-                and(
-                  like(userAlerts.keyword, `%${parsed.disclosureTitle}%`),
-                  eq(userAlerts.enabled, true)
-                )
-              )
-            );
+          recipientIds = await findRecipients(db, company.corpCode, parsed.disclosureTitle);
         } catch (queryErr) {
           console.error("DB query for interested users failed", { ...ctx, error: queryErr });
           seenDisclosures.set(rcpNo, Date.now());
@@ -132,10 +103,8 @@ export function startRssPoller() {
         // 3. Send notifications (병렬 처리)
         try {
           await Promise.all(
-            interestedUsers
-              .filter((row) => row.users) // users가 null 아닌 것만
-              .map((row) =>
-                sendPushNotification(row.users.id, {
+            recipientIds.map((userId) =>
+                sendPushNotification(userId, {
                   title: `새 공시: ${parsed.companyName}`,
                   body: parsed.type,
                   data: { receiptNumber: rcpNo },
@@ -145,10 +114,8 @@ export function startRssPoller() {
           console.log("Sent the new disclosure notification", { ...ctx, type: parsed.type });
 
           // 4. Add the notifications to the DB
-          const notificationValues = interestedUsers
-            .filter((row) => row.users)
-            .map((row) => ({
-              userId: row.users.id,
+          const notificationValues = recipientIds.map((userId) => ({
+              userId,
               disclosureReceiptNumber: rcpNo,
               createdAt: new Date(disclosure.pubDate),
               read: false,
